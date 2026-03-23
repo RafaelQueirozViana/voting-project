@@ -1,100 +1,50 @@
-// const express = require('express');
-// const app = express();
-
-// const { open } = require('sqlite');
-// const sqlite3 = require('sqlite3');
-
-// const path = require('path');
-
-// const projectFolder = path.join(__dirname, '..')
-
-// let db;
-
-// app.use(express.static(path.join(projectFolder, 'styles')))
-// app.use(express.urlencoded({ extended: true }));
 
 
+    const express = require("express");
+    const app = express();
 
-// async function loadDatabase() {
-//     db = await open({ filename: 'data.db', driver: sqlite3.Database });
+    const { open } = require("sqlite");
+    const sqlite3 = require("sqlite3");
+    const path = require('path');
 
-//     await db.exec(`CREATE TABLE IF NOT EXISTS usuarios (
-//         id INTEGER PRIMARY KEY AUTOINCREMENT,
-//         nome TEXT,
-//         idade INTEGER
-//         )`)
+    const projectFolder = path.join(__dirname, '..');
 
-//     app.listen(3000, () => {
-//         console.log(`server running in the port 3000`);
-//     })
-// }
+    let db;
 
-// loadDatabase()
+    app.use(express.static(path.join(projectFolder, "styles")));
+    app.use(express.urlencoded({ extended: true }));
 
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(projectFolder, 'index.html'))
-// });
+    async function initDatabase() {
+        db = await open({ filename: './data.db', driver: sqlite3.Database });
+        await db.exec(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            age INTEGER
+            )`);
 
-// app.post('/cadastro', async (req, res) => {
-//     const { name, age } = req.body;
-//     await db.run(`INSERT INTO usuarios (nome, idade) VALUES (?, ?)`, [name, age]);
+        app.listen(3000, () => {
+            console.log("Server running in the port 3000");
+        })
 
-//     res.send(`<h1>Sucess Added the user ${name} with de age ${age}</h1>`)
+    }
 
-// });
+    initDatabase();
 
-
-
-// app.get('/usuarios', async (req, res) => {
-//     const usersList = await db.all('SELECT * FROM usuarios');
-//     res.json(usersList)
-// })
-
-const express = require("express");
-const app = express();
-
-const { open } = require("sqlite");
-const sqlite3 = require("sqlite3");
-const path = require('path');
-
-const projectFolder = path.join(__dirname, '..');
-
-let db;
-
-app.use(express.static(path.join(projectFolder, "styles")));
-app.use(express.urlencoded({ extended: true }));
-
-async function initDatabase() {
-    db = await open({ filename: './data.db', driver: sqlite3.Database });
-    await db.exec(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        age INTEGER
-        )`);
-
-    app.listen(3000, () => {
-        console.log("Server running in the port 3000");
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(projectFolder, "form.html"));
     })
 
-}
 
-initDatabase();
+    app.post('/sign', async (req, res) => {
+        const { name, age } = req.body;
+        await db.run(`INSERT INTO users (name, age) VALUES (?, ?)`, [name, age]);
+        res.send("data sended")
+    })
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(projectFolder, "form.html"));
-})
-
-
-app.post('/sign', async (req, res) => {
-    const { name, age } = req.body;
-    await db.run(`INSERT INTO users (name, age) VALUES (?, ?)`, [name, age]);
-    res.send("data sended")
-})
-
-app.get('/users', async (req, res) => {
-    const usersList = await db.all('SELECT * FROM users')
-    res.json(usersList);
-})
+    app.get('/users', async (req, res) => {
+        const usersList = await db.all('SELECT * FROM users')
+        res.json(usersList);
+    })
 
 
 
